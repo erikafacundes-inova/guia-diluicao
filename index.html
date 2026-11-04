@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabela de Diluição — Medicamentos Injetáveis UTI</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f7f4; --surface: #ffffff; --border: #e2e0da; --border-strong: #c8c5bc;
+    --text: #1a1a18; --text-muted: #6b6860; --text-faint: #9c9a94;
+    --accent: #1a4a6b; --accent-light: #e8f0f7;
+    --warn: #7a3500; --warn-bg: #fef3e8; --danger: #6b1a1a; --danger-bg: #fdf0f0;
+    --ok: #1a5c2a; --ok-bg: #eef6f0; --purple: #3d2a7a; --purple-bg: #f0edfb;
+    --blue: #0c3d6b; --blue-bg: #e8f2fc;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+  .page-header { background: var(--accent); color: white; padding: 2.5rem 2rem 2rem; border-bottom: 3px solid #0f2d42; }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .header-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+  .header-title { font-size: 22px; font-weight: 500; letter-spacing: -0.01em; color: white; line-height: 1.2; }
+  .header-sub { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 6px; font-weight: 300; max-width: 560px; line-height: 1.5; }
+  .header-badge { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.85); font-family: var(--mono); font-size: 10px; padding: 5px 10px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.05em; }
+  .controls { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .controls-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin-right: 4px; }
+  input[type="text"] { font-family: var(--sans); font-size: 13px; padding: 7px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg); color: var(--text); width: 220px; outline: none; transition: border-color 0.15s; }
+  input[type="text"]:focus { border-color: var(--accent); }
+  select { font-family: var(--sans); font-size: 12px; padding: 7px 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg); color: var(--text); outline: none; cursor: pointer; }
+  select:focus { border-color: var(--accent); }
+  .count-pill { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; }
+  .table-container { padding: 1.5rem 2rem; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1000px; }
+  thead th { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--border-strong); white-space: nowrap; background: var(--surface); }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; color: var(--text); background: var(--surface); }
+  tbody tr:hover td { background: #f5f4f0; }
+  tbody tr:last-child td { border-bottom: none; }
+  .drug-name { font-weight: 500; font-size: 12.5px; color: var(--text); }
+  .drug-meta { font-family: var(--mono); font-size: 10px; color: var(--text-faint); margin-top: 3px; line-height: 1.4; }
+  .via-badge { font-family: var(--mono); font-size: 10px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 2px 6px; border-radius: 3px; }
+  .recon-yes { font-size: 10px; background: var(--purple-bg); color: var(--purple); padding: 3px 7px; border-radius: 4px; display: inline-block; font-weight: 500; margin-bottom: 4px; }
+  .recon-no { color: var(--text-faint); font-size: 11px; }
+  .recon-detail { font-size: 10.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+  .diluente-text { font-size: 11.5px; color: var(--text); line-height: 1.5; }
+  .vol-text { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+  .badge { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.03em; }
+  .b-ui { background: #fff8e6; color: #7a5200; border: 1px solid #f0d080; }
+  .b-4h, .b-6h { background: #fff3ed; color: #7a3500; border: 1px solid #f5c0a0; }
+  .b-12h { background: #fef0e8; color: #7a3500; border: 1px solid #f0b890; }
+  .b-24h { background: var(--blue-bg); color: var(--blue); border: 1px solid #b0cce8; }
+  .b-48h { background: var(--purple-bg); color: var(--purple); border: 1px solid #c0b0f0; }
+  .b-72h, .b-7d { background: var(--ok-bg); color: var(--ok); border: 1px solid #a0d0b0; }
+  .b-none { color: var(--text-faint); font-size: 11px; }
+  .b-sim-fl { background: var(--danger-bg); color: var(--danger); border: 1px solid #f0b0b0; }
+  .b-nao-fl { background: var(--ok-bg); color: var(--ok); border: 1px solid #a0d0b0; }
+  .b-sim-fo { background: #1a3a6b; color: #ffffff; border: 1px solid #0f2a50; }
+  .b-nao-fo { background: var(--bg); color: var(--text-faint); border: 1px solid var(--border); }
+  .alerta-text { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+  .alerta-critico { font-size: 11px; color: var(--warn); background: var(--warn-bg); padding: 4px 8px; border-radius: 4px; border-left: 2px solid #e07020; line-height: 1.5; }
+  .alerta-danger { font-size: 11px; color: var(--danger); background: var(--danger-bg); padding: 4px 8px; border-radius: 4px; border-left: 2px solid #c04040; line-height: 1.5; }
+  .empty-state { text-align: center; padding: 3rem; color: var(--text-faint); font-size: 13px; background: var(--surface); }
+  .legend { padding: 1rem 2rem 2rem; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .legend-title { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); width: 100%; margin-bottom: 2px; }
+  .footer { background: var(--surface); border-top: 1px solid var(--border); padding: 1.5rem 2rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-start; }
+  .footer-text { font-size: 11px; color: var(--text-faint); line-height: 1.6; max-width: 600px; }
+  .footer-credit { font-family: var(--mono); font-size: 10px; color: var(--text-faint); text-align: right; }
+  @media (max-width: 768px) {
+    .page-header { padding: 1.5rem 1rem; } .controls { padding: 0.75rem 1rem; }
+    .table-container { padding: 1rem; } .legend { padding: 0.75rem 1rem 1.5rem; }
+    .footer { padding: 1rem; } input[type="text"] { width: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-top">
+    <div>
+      <div class="header-tag">Farmácia Clínica · @farmaceuticaerika</div>
+      <div class="header-title">Tabela de Diluição — Medicamentos Injetáveis UTI</div>
+      <div class="header-sub">Dados baseados nas bulas dos fabricantes indicados. A estabilidade pode variar conforme o fabricante — consulte sempre a bula do produto disponível na sua instituição.</div>
+    </div>
+    <div class="header-badge">30 medicamentos</div>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="controls-label">Filtrar</span>
+  <input type="text" id="search" placeholder="Buscar medicamento ou diluente..." oninput="render()">
+  <select id="flebite" onchange="render()">
+    <option value="">Flebite — todos</option>
+    <option value="Sim">Flebite: sim</option>
+    <option value="Não">Flebite: não</option>
+  </select>
+  <select id="foto" onchange="render()">
+    <option value="">Equipo foto — todos</option>
+    <option value="Sim">Foto: necessário</option>
+    <option value="Não">Foto: não necessário</option>
+  </select>
+  <select id="recon" onchange="render()">
+    <option value="">Reconstituição — todos</option>
+    <option value="sim">Com reconstituição</option>
+    <option value="nao">Sem reconstituição</option>
+  </select>
+  <span class="count-pill" id="count">30 medicamentos</span>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:17%">Medicamento</th>
+        <th style="width:7%">Via</th>
+        <th style="width:12%">Reconstituição</th>
+        <th style="width:16%">Diluente (diluição)</th>
+        <th style="width:8%">Vol. mín.</th>
+        <th style="width:8%">Estab. TA</th>
+        <th style="width:8%">Estab. RF</th>
+        <th style="width:6%">Flebite</th>
+        <th style="width:6%">Foto</th>
+        <th style="width:12%">Alerta principal</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="legend">
+  <div class="legend-title">Legenda de estabilidade</div>
+  <span class="badge b-ui">UI — uso imediato</span>
+  <span class="badge b-4h">4h</span>
+  <span class="badge b-12h">12h</span>
+  <span class="badge b-24h">24h</span>
+  <span class="badge b-48h">48h</span>
+  <span class="badge b-72h">72h</span>
+  <span class="badge b-7d">7 dias</span>
+  <span class="badge b-sim-fl">Flebite: sim</span>
+  <span class="badge b-nao-fl">Flebite: não</span>
+  <span class="badge b-sim-fo">Foto: necessário</span>
+</div>
+
+<div class="footer">
+  <div class="footer-text">
+    <strong>Atenção:</strong> Esta tabela foi elaborada com base nas bulas dos fabricantes indicados em cada medicamento. A estabilidade físico-química e microbiológica pode variar conforme a formulação, excipientes e condições de preparo. Consulte sempre a bula do produto disponível na sua instituição antes de administrar.
+  </div>
+  <div class="footer-credit">
+    Erika Facundes · Farmacêutica Clínica<br>
+    Material de uso profissional
+  </div>
+</div>
+
+<script>
+const drugs = [
+  { nome:"Amiodarona", dose:"50mg/mL · 3mL (Hipolabor)", via:"EV", recon:"—", diluente:"SG 5% exclusivo\nEV direto: 20mL\nAC: 250mL / AP: 500mL", vol:"250mL (0,6mg/mL)", ta:"24h", rf:"—", fl:"Sim", fo:"Não", alerta:"Equipos e frascos de vidro ou bolsas isentas de PVC", tipo:"warn" },
+  { nome:"Atracúrio", dose:"10mg/mL · 2,5–5mL (Cristália/GSK)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5%\n0,2–0,5 mg/mL", vol:"P (AC)", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Proteger da luz. Risco de anafilaxia e bradicardia", tipo:"" },
+  { nome:"Cisatracúrio", dose:"10mg/mL · 5–10mL (Cristália/GSK)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5%\n0,1–2 mg/mL", vol:"2mg/mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Risco de anafilaxia e bradicardia", tipo:"" },
+  { nome:"Cloreto de Potássio", dose:"19,1% · 10mL (Farmace/Isofarma)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / RL\nAP: 500mL (máx. 50mEq/L)\nAC: 125–250mL (máx. 200mEq/L)", vol:"AP: 500mL\nAC: 250mL", ta:"24h", rf:"—", fl:"Sim", fo:"Não", alerta:"DILUIR ANTES DE ADMINISTRAR — preferencialmente AC. Evitar SG5% na hipocalemia", tipo:"danger" },
+  { nome:"Dantroleno", dose:"20mg (Cristália)", via:"EV", recon:"60mL AD\nEstab TA: 6h", diluente:"Não diluir após reconstituição", vol:"60mL", ta:"6h", rf:"—", fl:"Sim", fo:"Não", alerta:"Incompatível com SG5%, SF e soluções ácidas. Proteger da luz direta", tipo:"danger" },
+  { nome:"Dexametasona", dose:"4mg/mL · 2,5mL (Ache/Blau/Hipolabor)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5%\nEV infusão: 50–100mL", vol:"50mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"EV direto: ≥1 min (lento)", tipo:"" },
+  { nome:"Dexmedetomidina", dose:"100mcg/mL · 2mL (Wyeth)", via:"EV", recon:"—", diluente:"SF 0,9%\n48mL", vol:"48mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Ataque: 1mcg/kg em 10min. Manutenção: 0,2–0,7 mcg/kg/h", tipo:"" },
+  { nome:"Dipirona", dose:"500mg/mL · 2mL (Farmace)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5% / RL\n10mL", vol:"P", ta:"UI", rf:"—", fl:"Sim", fo:"Não", alerta:"USO IMEDIATO após diluição. Mínimo 1mL/min", tipo:"danger" },
+  { nome:"Dobutamina", dose:"250mg/20mL (Teuto/Hypofarma/União Química)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / RL\n250–1000mL", vol:"50mL", ta:"24h", rf:"—", fl:"Sim", fo:"Não", alerta:"Diluir antes de administrar. Bolsa protetora — fotossensível", tipo:"warn" },
+  { nome:"Epinefrina", dose:"1mg/mL · 1mL (Hipolabor)", via:"EV / IM / SC", recon:"—", diluente:"SG 5% / SF 0,9%\nEV direto: 10mL\nEV infusão: 250mL (máx. 4mcg/mL)", vol:"5mg/10mL", ta:"24h", rf:"—", fl:"Sim", fo:"Sim", alerta:"Proteger da luz. EV direto: bolus", tipo:"warn" },
+  { nome:"Fenitoína", dose:"50mg/mL · 5mL", via:"EV / IM", recon:"—", diluente:"SF 0,9% exclusivo\nEV direto: 45–95mL\nEV infusão: 50–100mL", vol:"P", ta:"UI", rf:"UI", fl:"Sim", fo:"Não", alerta:"Droga vesicante — AC de grande calibre. Incompatível com SG. Filtro 0,22 micra obrigatório no EV direto", tipo:"danger" },
+  { nome:"Fentanila", dose:"0,05mg/mL · 2mL (Cristália)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5%\n80mL (1:4)", vol:"P", ta:"24h", rf:"—", fl:"Sim", fo:"Não", alerta:"EV direto: 3–5 min (lento). Doses >5mcg/kg: 5–10 min", tipo:"" },
+  { nome:"Furosemida", dose:"10mg/mL · 2mL (Teuto)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / RL\n50–100mL\npH alcalino (não usar soluções ácidas)", vol:"P", ta:"—", rf:"24h", fl:"Não", fo:"Sim", alerta:"Não fazer bolus. Infusão contínua: equipo e bolsa protegidos da luz", tipo:"warn" },
+  { nome:"Heparina Sódica", dose:"5000UI/mL · 5mL (Blausiegel/Novafarma)", via:"EV / SC", recon:"—", diluente:"SF 0,9% / SG 5% ou 10% / RL\n100UI/mL", vol:"100UI/mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Homogeneizar bolsa 6x após adição. Ajustar dose conforme TTPa", tipo:"" },
+  { nome:"Hidrocortisona 100mg", dose:"(Blausiegel/Novafarma)", via:"EV / IM", recon:"2mL DP/AD\nEstab TA: 24h\nEstab RF: 72h", diluente:"SF 0,9% / SG 5%\nEV infusão: 100–1000mL", vol:"50mL", ta:"24h", rf:"24h", fl:"Não", fo:"Não", alerta:"EV direto: 30s. Prazos distintos entre reconstituição e diluição", tipo:"warn" },
+  { nome:"Insulina Regular", dose:"10mL (Aspen/Biocon)", via:"EV / SC", recon:"—", diluente:"SF 0,9%\n100mL", vol:"100mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Em TA validade reduz para 28 dias. Armazenamento padrão sob RF (2–8°C)", tipo:"warn" },
+  { nome:"Midazolam", dose:"5mg/mL · 10mL (Hipolabor/União Química/Cristália)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5% ou 10% / RL\n0,5mg/mL (2amp em 180mL)", vol:"P", ta:"24h", rf:"72h", fl:"Sim", fo:"Não", alerta:"Estabilidade maior sob RF (72h) vs TA (24h) — útil para preparo centralizado", tipo:"" },
+  { nome:"Morfina", dose:"10mg/mL · 1mL (Cristália)", via:"EV / IM / SC", recon:"—", diluente:"SF 0,9% / SG 5%\n1–2mg/mL em 100mL", vol:"1–2mg/mL", ta:"48h", rf:"—", fl:"Não", fo:"Não", alerta:"Não fazer bolus — risco de rigidez de parede torácica. EV direto: 4–5 min", tipo:"warn" },
+  { nome:"Naloxona", dose:"0,4mg/mL · 1mL (Cristália)", via:"EV / IM / SC", recon:"—", diluente:"SF 0,9% / SG 5%\nEV direto: 9mL\nEV infusão: 99mL", vol:"P", ta:"24h", rf:"—", fl:"Não", fo:"Sim", alerta:"Bolsa de infusão protegida da luz", tipo:"" },
+  { nome:"Nitroglicerina", dose:"5mg/mL · 10mL (Cristália)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5%\n250–500mL", vol:"125mL (400mcg/mL)", ta:"48h", rf:"7 dias", fl:"Sim", fo:"Não", alerta:"Equipos e bolsas isentos de PVC — adsorção ao plástico", tipo:"warn" },
+  { nome:"Nitroprussiato", dose:"25mg/mL (Hypofarma)", via:"EV", recon:"2mL DP\nEstab TA: 4h\n(proteger da luz)", diluente:"SG 5% exclusivo\n250–1000mL", vol:"250mL (0,2mg/mL)", ta:"24h", rf:"—", fl:"Não", fo:"Sim", alerta:"Reconstituição (4h) ≠ diluição (24h). Bolsa e equipo SEMPRE protegidos da luz. Risco de toxicidade por cianeto", tipo:"danger" },
+  { nome:"Norepinefrina", dose:"2mg/mL · 4mL (Hipolabor)", via:"EV", recon:"—", diluente:"SG 5% preferencial\n5amp em 180mL (0,1mg/mL)", vol:"P", ta:"24h", rf:"—", fl:"Sim", fo:"Sim", alerta:"SG5% reduz oxidação vs SF. Proteger da luz. Não associar bicarbonato na mesma via. AC preferencial", tipo:"warn" },
+  { nome:"Omeprazol Sódico 40mg", dose:"(EMS/Eurofarma)", via:"EV", recon:"10mL DP\nEstab RF: 4h", diluente:"—", vol:"—", ta:"—", rf:"4h", fl:"Não", fo:"Não", alerta:"EV direto: 4mL/min (lento). Usar imediatamente após reconstituição em TA", tipo:"warn" },
+  { nome:"Pancurônio", dose:"2mg/mL · 2mL (Cristália)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / RL\n0,6mg/mL (15amp em 70mL)", vol:"P", ta:"UI", rf:"—", fl:"Não", fo:"Não", alerta:"Fabricante não recomenda infusão contínua — uso sob critério médico", tipo:"" },
+  { nome:"Propofol", dose:"10mg/mL · 20mL", via:"EV", recon:"—", diluente:"NÃO DILUIR", vol:"—", ta:"12h", rf:"—", fl:"Sim", fo:"Não", alerta:"Emulsão lipídica = meio de cultura. 12h após abertura independente de sobra. Não diluir", tipo:"danger" },
+  { nome:"Remifentanila", dose:"2mg (GSK)", via:"EV", recon:"5mL AD\nEstab TA: 24h", diluente:"SF 0,9% / SG 5% / AD / RL\n0,05–0,07mg/mL", vol:"20mg/50mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Associar ao midazolam. 0,05–0,1mcg/kg/min", tipo:"" },
+  { nome:"Rocurônio", dose:"50mg · 5mL (Cristália/Eurofarma)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / AD / RL\n0,5–2mg/mL (8amp/160mL)", vol:"P", ta:"24h", rf:"24h", fl:"Não", fo:"Não", alerta:"EV direto: bolus. Infusão: 8–12mcg/kg/min", tipo:"" },
+  { nome:"Sulfato de Magnésio", dose:"50% · 10mL (Isofarma)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5%\nEV direto: 25–50mL\nEV infusão: 250mL", vol:"AC: P / AP: 50mL", ta:"UI", rf:"—", fl:"Não", fo:"Não", alerta:"Velocidade máx.: 150mg/min, exceto emergências", tipo:"" },
+  { nome:"Terlipressina 1mg", dose:"(Ferring)", via:"EV", recon:"5mL DP\nEstab TA: 12h\nEstab RF: 24h", diluente:"SF 0,9%\n10mL", vol:"P", ta:"12h", rf:"24h", fl:"Não", fo:"Não", alerta:"Monitorar PA e FC durante administração. EV direto: 3–5 min", tipo:"" },
+  { nome:"Vecurônio 10mg", dose:"(Cristália)", via:"EV", recon:"5mL AD\nEstab TA: 24h", diluente:"SF 0,9% / SG 5% / RL\n0,1–0,2mg/mL (50–100mL)", vol:"1mg/mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Risco de anafilaxia e paralisia prolongada", tipo:"" },
+];
+
+function badgeEstab(v) {
+  if (!v || v === "—") return '<span class="b-none">—</span>';
+  const l = v.toLowerCase();
+  let cls = "b-24h";
+  if (l.includes("ui")) cls = "b-ui";
+  else if (l === "4h") cls = "b-4h";
+  else if (l.includes("6h")) cls = "b-6h";
+  else if (l.includes("12h")) cls = "b-12h";
+  else if (l.includes("48")) cls = "b-48h";
+  else if (l.includes("72")) cls = "b-72h";
+  else if (l.includes("7 d") || l.includes("7d")) cls = "b-7d";
+  return `<span class="badge ${cls}">${v}</span>`;
+}
+function alertaHtml(d) {
+  if (d.tipo === "danger") return `<div class="alerta-danger">${d.alerta}</div>`;
+  if (d.tipo === "warn") return `<div class="alerta-critico">${d.alerta}</div>`;
+  return `<div class="alerta-text">${d.alerta}</div>`;
+}
+function reconHtml(d) {
+  if (d.recon === "—") return '<span class="recon-no">—</span>';
+  return `<div class="recon-yes">Necessária</div><div class="recon-detail">${d.recon.split('\n').join('<br>')}</div>`;
+}
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const fl = document.getElementById('flebite').value;
+  const fo = document.getElementById('foto').value;
+  const re = document.getElementById('recon').value;
+  const filtered = drugs.filter(d => {
+    if (q && !d.nome.toLowerCase().includes(q) && !d.diluente.toLowerCase().includes(q) && !d.alerta.toLowerCase().includes(q)) return false;
+    if (fl && d.fl !== fl) return false;
+    if (fo && d.fo !== fo) return false;
+    if (re === 'sim' && d.recon === '—') return false;
+    if (re === 'nao' && d.recon !== '—') return false;
+    return true;
+  });
+  document.getElementById('count').textContent = filtered.length + (filtered.length === 1 ? ' medicamento' : ' medicamentos');
+  const tbody = document.getElementById('tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Nenhum medicamento encontrado para os filtros selecionados.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(d => `
+    <tr>
+      <td><div class="drug-name">${d.nome}</div><div class="drug-meta">${d.dose}</div></td>
+      <td><span class="via-badge">${d.via}</span></td>
+      <td>${reconHtml(d)}</td>
+      <td><div class="diluente-text">${d.diluente.replace(/\n/g,'<br>')}</div></td>
+      <td><div class="vol-text">${d.vol.replace(/\n/g,'<br>')}</div></td>
+      <td>${badgeEstab(d.ta)}</td>
+      <td>${badgeEstab(d.rf)}</td>
+      <td><span class="badge ${d.fl === 'Sim' ? 'b-sim-fl' : 'b-nao-fl'}">${d.fl}</span></td>
+      <td><span class="badge ${d.fo === 'Sim' ? 'b-sim-fo' : 'b-nao-fo'}">${d.fo === 'Sim' ? 'Sim' : 'Não'}</span></td>
+      <td>${alertaHtml(d)}</td>
+    </tr>`).join('');
+}
+render();
+</script>
+</body>
+</html>
