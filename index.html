@@ -138,6 +138,8 @@
   <span class="badge b-sim-fl">Flebite: sim</span>
   <span class="badge b-nao-fl">Flebite: não</span>
   <span class="badge b-sim-fo">Foto: necessário</span>
+  <div class="legend-title" style="margin-top:10px">Siglas</div>
+  <div style="font-size:11px;color:var(--text-muted);line-height:1.6">TA temperatura ambiente · RF refrigeração (2–8 °C) · UI uso imediato · SF soro fisiológico 0,9% · SG soro glicosado · RL Ringer lactato · AD água destilada · DP diluente próprio · AC acesso central · AP acesso periférico · EV endovenoso · IM intramuscular · SC subcutâneo · P puro</div>
 </div>
 
 <div class="footer">
@@ -162,7 +164,7 @@ const drugs = [
   { nome:"Dipirona", dose:"500mg/mL · 2mL (Farmace)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5% / RL\n10mL", vol:"P", ta:"UI", rf:"—", fl:"Sim", fo:"Não", alerta:"USO IMEDIATO após diluição. Mínimo 1mL/min", tipo:"danger" },
   { nome:"Dobutamina", dose:"250mg/20mL (Teuto/Hypofarma/União Química)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / RL\n250–1000mL", vol:"50mL", ta:"24h", rf:"—", fl:"Sim", fo:"Não", alerta:"Diluir antes de administrar. Bolsa protetora — fotossensível", tipo:"warn" },
   { nome:"Epinefrina", dose:"1mg/mL · 1mL (Hipolabor)", via:"EV / IM / SC", recon:"—", diluente:"SG 5% / SF 0,9%\nEV direto: 10mL\nEV infusão: 250mL (máx. 4mcg/mL)", vol:"5mg/10mL", ta:"24h", rf:"—", fl:"Sim", fo:"Sim", alerta:"Proteger da luz. EV direto: bolus", tipo:"warn" },
-  { nome:"Fenitoína", dose:"50mg/mL · 5mL", via:"EV / IM", recon:"—", diluente:"SF 0,9% exclusivo\nEV direto: 45–95mL\nEV infusão: 50–100mL", vol:"P", ta:"UI", rf:"UI", fl:"Sim", fo:"Não", alerta:"Droga vesicante — AC de grande calibre. Incompatível com SG. Filtro 0,22 micra obrigatório no EV direto", tipo:"danger" },
+  { nome:"Fenitoína", dose:"50mg/mL · 5mL (Teuto/Cristália)", via:"EV / IM", recon:"—", diluente:"SF 0,9% exclusivo\nSoluções glicosadas precipitam o produto", vol:"P", ta:"UI", rf:"UI", fl:"Sim", fo:"Não", alerta:"Solução alcalina e irritante: lavar a veia com SF 0,9% antes e depois. Infusão por curtos períodos com filtro 0,22 micra. Máx. 50 mg/min. Incompatível com SG", tipo:"danger" },
   { nome:"Fentanila", dose:"0,05mg/mL · 2mL (Cristália)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5%\n80mL (1:4)", vol:"P", ta:"24h", rf:"—", fl:"Sim", fo:"Não", alerta:"EV direto: 3–5 min (lento). Doses >5mcg/kg: 5–10 min", tipo:"" },
   { nome:"Furosemida", dose:"10mg/mL · 2mL (Teuto)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / RL\n50–100mL\npH alcalino (não usar soluções ácidas)", vol:"P", ta:"—", rf:"24h", fl:"Não", fo:"Sim", alerta:"Não fazer bolus. Infusão contínua: equipo e bolsa protegidos da luz", tipo:"warn" },
   { nome:"Heparina Sódica", dose:"5000UI/mL · 5mL (Blausiegel/Novafarma)", via:"EV / SC", recon:"—", diluente:"SF 0,9% / SG 5% ou 10% / RL\n100UI/mL", vol:"100UI/mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Homogeneizar bolsa 6x após adição. Ajustar dose conforme TTPa", tipo:"" },
@@ -176,7 +178,7 @@ const drugs = [
   { nome:"Norepinefrina", dose:"2mg/mL · 4mL (Hipolabor)", via:"EV", recon:"—", diluente:"SG 5% preferencial\n5amp em 180mL (0,1mg/mL)", vol:"P", ta:"24h", rf:"—", fl:"Sim", fo:"Sim", alerta:"SG5% reduz oxidação vs SF. Proteger da luz. Não associar bicarbonato na mesma via. AC preferencial", tipo:"warn" },
   { nome:"Omeprazol Sódico 40mg", dose:"(EMS/Eurofarma)", via:"EV", recon:"10mL DP\nEstab RF: 4h", diluente:"—", vol:"—", ta:"—", rf:"4h", fl:"Não", fo:"Não", alerta:"EV direto: 4mL/min (lento). Usar imediatamente após reconstituição em TA", tipo:"warn" },
   { nome:"Pancurônio", dose:"2mg/mL · 2mL (Cristália)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / RL\n0,6mg/mL (15amp em 70mL)", vol:"P", ta:"UI", rf:"—", fl:"Não", fo:"Não", alerta:"Fabricante não recomenda infusão contínua — uso sob critério médico", tipo:"" },
-  { nome:"Propofol", dose:"10mg/mL · 20mL", via:"EV", recon:"—", diluente:"NÃO DILUIR", vol:"—", ta:"12h", rf:"—", fl:"Sim", fo:"Não", alerta:"Emulsão lipídica = meio de cultura. 12h após abertura independente de sobra. Não diluir", tipo:"danger" },
+  { nome:"Propofol", dose:"10mg/mL (1%) · 20mL (Cristália/Fresenius Kabi)", via:"EV", recon:"—", diluente:"Uso puro ou diluído em SG 5%\nMáx. 1:5 (2 mg/mL)", vol:"Puro ou 2mg/mL", ta:"12h puro · 6h diluído", rf:"—", fl:"Sim", fo:"Não", alerta:"Emulsão lipídica sem conservante: descartar sobras. Puro: até 12h; diluído: até 6h. Agitar antes do uso. Propofol 2% não pode ser diluído", tipo:"danger" },
   { nome:"Remifentanila", dose:"2mg (GSK)", via:"EV", recon:"5mL AD\nEstab TA: 24h", diluente:"SF 0,9% / SG 5% / AD / RL\n0,05–0,07mg/mL", vol:"20mg/50mL", ta:"24h", rf:"—", fl:"Não", fo:"Não", alerta:"Associar ao midazolam. 0,05–0,1mcg/kg/min", tipo:"" },
   { nome:"Rocurônio", dose:"50mg · 5mL (Cristália/Eurofarma)", via:"EV", recon:"—", diluente:"SF 0,9% / SG 5% / AD / RL\n0,5–2mg/mL (8amp/160mL)", vol:"P", ta:"24h", rf:"24h", fl:"Não", fo:"Não", alerta:"EV direto: bolus. Infusão: 8–12mcg/kg/min", tipo:"" },
   { nome:"Sulfato de Magnésio", dose:"50% · 10mL (Isofarma)", via:"EV / IM", recon:"—", diluente:"SF 0,9% / SG 5%\nEV direto: 25–50mL\nEV infusão: 250mL", vol:"AC: P / AP: 50mL", ta:"UI", rf:"—", fl:"Não", fo:"Não", alerta:"Velocidade máx.: 150mg/min, exceto emergências", tipo:"" },
